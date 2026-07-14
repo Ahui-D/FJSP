@@ -1,0 +1,24 @@
+{
+  "seed": 42,
+  "train_cases": [
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk3.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk8.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk2.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk15.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk9.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk7.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk14.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk11.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk4.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk12.fjs"
+  ],
+  "val_cases": [
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk13.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk6.fjs"
+  ],
+  "test_cases": [
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk1.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk10.fjs",
+    "/home/jinglei/RAMS/Dispatching-rules-for-FJSP-main_3.30_v1/1_Brandimarte/BrandimarteMk5.fjs"
+  ]
+}
