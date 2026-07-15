@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 # 3_SD 20x10, seed=32, 8:1:1, resume from epoch 80 and train to 500 epochs.
 set -euo pipefail
-cd /home/jinglei/RAMS/Ahui_fjsp_main_5.10
-exec /home/jinglei/miniconda3/bin/python Train_OC_MAPPO.py \
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PYTHON_BIN="${PYTHON_BIN:-python}"
+GPU_ARGS=()
+if [[ "${GPU_ID:-}" != "" ]]; then
+  GPU_ARGS=(--gpu-id "$GPU_ID")
+fi
+cd "$REPO_ROOT"
+exec "$PYTHON_BIN" Train_OC_MAPPO.py \
+  "${GPU_ARGS[@]}" \
   --split-json splits/3sd_20x10_seed32_split_8_1_1.json \
   --epochs 500 \
   --seed 32 \

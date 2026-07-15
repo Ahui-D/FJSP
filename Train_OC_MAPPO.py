@@ -5278,6 +5278,30 @@ def _build_cases(case_dir: str, pattern: str, train_count: int, val_count: int, 
     return make_case_split(all_cases=all_cases, train_count=train_count, val_count=val_count)
 
 
+def _resolve_split_case_path(case_path: str) -> str:
+    path = Path(str(case_path))
+    if path.exists():
+        return str(path)
+
+    parts = path.parts
+    if "3_SD" in parts:
+        idx = parts.index("3_SD")
+        repo_local = Path(*parts[idx:])
+        if repo_local.exists():
+            return str(repo_local)
+    if "4_SD" in parts:
+        idx = parts.index("4_SD")
+        repo_local = Path(*parts[idx:])
+        if repo_local.exists():
+            return str(repo_local)
+
+    return str(path)
+
+
+def _resolve_split_case_paths(case_paths: List[str]) -> List[str]:
+    return [_resolve_split_case_path(str(path)) for path in case_paths]
+
+
 def parse_args(args=None):
     p = argparse.ArgumentParser(description="Train O+C+M MAPPO with centralized critic")
     p.add_argument("--case-dir", type=str, default="1_Brandimarte")
@@ -5299,6 +5323,12 @@ def parse_args(args=None):
     p.add_argument("--val-count", type=int, default=2)
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
+    p.add_argument(
+        "--gpu-id",
+        type=int,
+        default=-1,
+        help="CUDA device index to use. -1 keeps --device/CUDA_VISIBLE_DEVICES behavior.",
+    )
 
     p.add_argument("--epochs", type=int, default=80)
     p.add_argument("--episodes-per-update", type=int, default=8)
@@ -5757,8 +5787,31 @@ def parse_args(args=None):
     return p.parse_args(args=args)
 
 
+def _configure_device_from_cli(cli: argparse.Namespace) -> argparse.Namespace:
+    """Resolve the requested GPU into cfg.device before any model is created."""
+    gpu_id = int(getattr(cli, "gpu_id", -1))
+    if gpu_id < 0:
+        return cli
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"--gpu-id {gpu_id} was requested, but CUDA is not available")
+    if gpu_id >= torch.cuda.device_count():
+        raise ValueError(
+            f"--gpu-id {gpu_id} was requested, but PyTorch sees only "
+            f"{torch.cuda.device_count()} CUDA device(s)"
+        )
+
+    torch.cuda.set_device(gpu_id)
+    cli.device = f"cuda:{gpu_id}"
+    print(
+        f"[device] using {cli.device}; if CUDA_VISIBLE_DEVICES is unset, this matches the nvidia-smi GPU index",
+        flush=True,
+    )
+    return cli
+
+
 def main(args=None):
     cli = parse_args(args=args)
+    cli = _configure_device_from_cli(cli)
     effective_num_envs = int(cli.num_envs) if int(cli.num_envs) > 0 else int(cli.episodes_per_update)
     scan_case_splits = _parse_case_splits(
         str(cli.scan_case_splits),
@@ -5772,9 +5825,9 @@ def main(args=None):
     )
     if cli.split_json:
         split_payload = json.loads(Path(cli.split_json).read_text(encoding="utf-8"))
-        train_cases = [str(x) for x in split_payload.get("train_cases", [])]
-        val_cases = [str(x) for x in split_payload.get("val_cases", [])]
-        test_cases = [str(x) for x in split_payload.get("test_cases", [])]
+        train_cases = _resolve_split_case_paths([str(x) for x in split_payload.get("train_cases", [])])
+        val_cases = _resolve_split_case_paths([str(x) for x in split_payload.get("val_cases", [])])
+        test_cases = _resolve_split_case_paths([str(x) for x in split_payload.get("test_cases", [])])
         if int(cli.epochs) > 0 and len(train_cases) == 0:
             raise ValueError("split-json must contain non-empty train_cases when epochs > 0")
         if int(cli.epochs) > 0 and len(val_cases) == 0:
